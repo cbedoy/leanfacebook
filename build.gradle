@@ -3,8 +3,13 @@
 buildscript {
     
     repositories {
-        google()
         jcenter()
+        maven {
+            url "https://jitpack.io"
+        }
+        maven { // Remove this lines if some maven packages already been merged into jcenter() about 12hours.
+            url 'https://dl.bintray.com/yongjhih/maven/'
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.1'
@@ -19,6 +24,12 @@ allprojects {
     repositories {
         google()
         jcenter()
+        maven {
+            url "https://jitpack.io"
+        }
+        maven { // Remove this lines if some maven packages already been merged into jcenter() about 12hours.
+            url 'https://dl.bintray.com/yongjhih/maven/'
+        }
     }
 }
 
