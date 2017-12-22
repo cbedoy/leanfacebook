@@ -3,17 +3,31 @@ package cbedoy.leanfacebook;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 
 import com.facebook.login.LoginResult;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import retrofacebook.Facebook;
+import rx.Observable;
 import rx.functions.Action0;
 import rx.functions.Action1;
+import rx.functions.Func1;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
 
     private Facebook mFacebook;
+
+    private Collection<String> mPermissions = Arrays.asList("public_profile",
+            "email",
+            "user_birthday",
+            "user_friends",
+            "user_about_me",
+            "user_location");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,24 +35,22 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mFacebook = Facebook.create(this);
-        mFacebook.logIn().doOnNext(new Action1<LoginResult>() {
-            @Override
-            public void call(LoginResult loginResult) {
 
-                Timber.d("Access Token %s", loginResult.getAccessToken());
-                Timber.d("Denied Permissions %s", loginResult.getRecentlyDeniedPermissions());
-                Timber.d("Grated Permissions %s", loginResult.getRecentlyGrantedPermissions());
-            }
-        }).doOnCompleted(new Action0() {
-            @Override
-            public void call() {
+        findViewById(R.id.main_activity_start).setOnClickListener(view ->  {
+            mFacebook.logInWithReadPermissions(mPermissions)
+                    .flatMap(login -> mFacebook.getProfile())
+                    .subscribe(profile -> {
+                                Timber.d("Profile: %s", profile);
+                                Timber.d("Name: %s", profile);
+                                Timber.d("Email: %s", profile.email());
+                            },
+                            throwable -> {
+                                Timber.d(throwable);
 
-            }
-        }).doOnError(new Action1<Throwable>() {
-            @Override
-            public void call(Throwable throwable) {
-                Timber.d(throwable);
-            }
+                            },
+                            () -> {
+                                Timber.d("Completed");
+                            });
         });
     }
 
